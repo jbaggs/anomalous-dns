@@ -51,7 +51,7 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 				{
 				NOTICE([$note=Domain_Query_Limit,
 					$conn=c,
-					$msg=fmt("Unique queries (%sq /%s) to domain: %s exceeded threshold.", 
+					$msg=fmt("Unique queries (%sq, < %s) to domain: %s exceeded threshold.", 
 						|domain_query[domain]|,cat(query_period),domain),
 					$sub=fmt("Most recent query from: %s", cat(c$id$orig_h)),   
 					$identifier=cat(c$id$orig_h),
