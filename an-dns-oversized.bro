@@ -60,9 +60,9 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
         if (len > oversize_response && ! (c$id$orig_h in local_dns_servers && c$dns$qtype in server_ignore_qtypes)
                 && c$id$orig_p ! in oversize_ignore_ports && c$id$resp_p ! in oversize_ignore_ports)
 		{
+		event AnomalousDNS::oversized_answer(c,len);
 		if (os_notice)
 			{
-			event AnomalousDNS::oversized_answer(c,len);
 			NOTICE([$note=Oversized_Answer,
 				$conn=c,
 				$msg=fmt("Message length: %sB", len),
