@@ -30,9 +30,14 @@ export {
 	##Name patterns to ignore in queries 
 	const oversize_ignore_names = /wpad|isatap|autodiscover|gstatic\.com$|domains\._msdcs|mcafee\.com$/ &redef;
 
-        ## Ignore answers to DNSSEC requests from local servers  
-        const local_dns_servers: set[addr] = {} &redef;
-        const server_ignore_qtypes = [43,48] &redef;
+	## Local servers that receive larger responses  
+	const local_dns_servers: set[addr] = {} &redef;
+
+	## Oversize response threshold for local servers (bytes)
+	const server_oversize_response = 760 &redef;
+
+	## Ignore answers to DNSSEC requests from local servers  
+	const server_ignore_qtypes = [43,48] &redef;
 }
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
@@ -57,8 +62,15 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 
 event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 	{
-        if (len > oversize_response && ! (c$id$orig_h in local_dns_servers && c$dns$qtype in server_ignore_qtypes)
-                && c$id$orig_p ! in oversize_ignore_ports && c$id$resp_p ! in oversize_ignore_ports)
+	local o_resp = oversize_response;
+	local local_server = F;
+	if (c$id$orig_h in local_dns_servers)
+		{
+		o_resp = server_oversize_response;
+		local_server = T;
+		}
+	if (len > o_resp && ! (local_server && c$dns$qtype in server_ignore_qtypes)
+		&& c$id$orig_p ! in oversize_ignore_ports && c$id$resp_p ! in oversize_ignore_ports)
 		{
 		event AnomalousDNS::oversized_answer(c,len);
 		if (os_notice)
@@ -67,7 +79,7 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 				$conn=c,
 				$msg=fmt("Message length: %sB", len),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=10min
+				$suppress_for=1min
 				]);
 			}
 		}
