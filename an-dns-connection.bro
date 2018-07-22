@@ -30,7 +30,7 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 				$conn=c,
 				$msg=fmt("Connection duration (%ss) exceeded limit.", c$duration),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=5min
+				$suppress_for=30min
 				]);
 			}
 		}
@@ -44,7 +44,7 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 				$conn=c,
 				$msg=fmt("Connection packets (%s) exceeded limit.", c$orig$num_pkts),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=5min
+				$suppress_for=30min
 				]);
 			}
                 }

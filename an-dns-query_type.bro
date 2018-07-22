@@ -35,7 +35,7 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 				$msg=fmt("Query: %s", query),
 				$sub=fmt("Query type: %s \"%s\"", qtype,DNS::query_types[qtype]),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=5min
+				$suppress_for=30min
 				]);
 			}
 		}
@@ -50,7 +50,7 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 				$msg=fmt("Query: %s", query),
 				$sub=fmt("Query type: %s \"%s\"", qtype,DNS::query_types[qtype]),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=5min
+				$suppress_for=30min
 				]);
 			}
 		}

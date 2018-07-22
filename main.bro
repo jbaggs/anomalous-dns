@@ -197,7 +197,7 @@ event conn_duration_exceeded(c: connection)
 				$conn=c,
 				$msg=fmt("Connection duration (%ss) exceeded limit.", c$duration),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=10min
+				$suppress_for=30min
 				]);
 			}
 		}
@@ -214,7 +214,7 @@ event conn_packets_exceeded(c: connection)
 				$conn=c,
 				$msg=fmt("Connection packets (%s) exceeded limit.", c$orig$num_pkts),
 				$identifier=cat(c$id$orig_h,c$id$resp_h),
-				$suppress_for=10min
+				$suppress_for=30min
 				]);
 			}
 		}	

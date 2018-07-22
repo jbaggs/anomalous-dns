@@ -55,7 +55,7 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 						|domain_query[domain]|,cat(query_period),domain),
 					$sub=fmt("Most recent query from: %s", cat(c$id$orig_h)),   
 					$identifier=domain,
-					$suppress_for=5min
+					$suppress_for=10min
 					]);
 				}
 			}
