@@ -30,9 +30,6 @@ export {
 	##Name patterns to ignore in queries 
 	const oversize_ignore_names = /wpad|isatap|autodiscover|gstatic\.com$|domains\._msdcs|mcafee\.com$/ &redef;
 
-	## Local servers that receive larger responses  
-	const local_dns_servers: set[addr] = {} &redef;
-
 	## Oversize response threshold for local servers (bytes)
 	const server_oversize_response = 760 &redef;
 
