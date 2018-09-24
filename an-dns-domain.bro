@@ -33,7 +33,7 @@ global domain_query: table[string] of set[string] &read_expire=query_period+1min
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
 	{
-	if (domain_whitelist ! in query)
+	if (! (c$id$orig_h in local_dns_servers && qtype in server_ignore_qtypes) && domain_whitelist ! in query)
 		{
 		local domain  =  DomainTLD::effective_domain(query);
 		if (domain ! in domain_query)

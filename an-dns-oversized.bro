@@ -32,9 +32,6 @@ export {
 
 	## Oversize response threshold for local servers (bytes)
 	const server_oversize_response = 760 &redef;
-
-	## Ignore answers to DNSSEC requests from local servers  
-	const server_ignore_qtypes = [43,48] &redef;
 }
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)

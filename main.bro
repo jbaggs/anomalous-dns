@@ -53,9 +53,12 @@ export {
 	global tunnel_notice: bool = T &redef;
 }
 
-## Local servers that receive exceptions for
-## oversized response, or query type 10 if Trust Anchor Telemetry
+## Local servers that receive exceptions for DNSSEC in Oversized_Answer and Domain_Query_Limit,
+## or query type 10 if Trust Anchor Telemetry
 const local_dns_servers: set[addr] = {} &redef;
+
+## DNSSEC query types
+const server_ignore_qtypes = [43,48] &redef;
 
 ## Connection duration limit for tunneling event
 const conn_duration_limit_tun = 90secs &redef;
