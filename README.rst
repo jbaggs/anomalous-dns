@@ -13,8 +13,7 @@ https://github.com/sethhall/domain-tld
 Installation
 ------------
 
-::
-    bro-pkg install jbaggs/anomalous-dns
+``bro-pkg install jbaggs/anomalous-dns``
 
 Documentation
 _____________
