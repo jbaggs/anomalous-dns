@@ -28,7 +28,7 @@ function trust_anchor_telemetry(c: connection, query: string, qtype: count): boo
 	{
 	if (qtype != 10)
 		return F;
-	else if (c$id$orig_h ! in local_dns_servers)
+	else if (c$id$orig_h ! in local_dns_servers && c$id$orig_h ! in recursive_resolvers)
 		return F;
 	else if (/^_ta(-[0-9a-f]{4})+$/ ! in query)
 		return F;

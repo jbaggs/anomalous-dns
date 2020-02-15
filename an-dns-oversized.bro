@@ -19,7 +19,7 @@ export {
 	const oversize_query = 90 &redef;
 
 	## Oversize response threshold (bytes)
-	const oversize_response = 512 &redef;
+	const oversize_response = 544 &redef;
 
 	## Ignore PTR and NB record types in requests
 	const oversize_ignore_qtypes = [12,32] &redef;
@@ -31,7 +31,7 @@ export {
 	const oversize_ignore_names = /wpad|isatap|autodiscover|gstatic\.com$|domains\._msdcs|mcafee\.com$/ &redef;
 
 	## Oversize response threshold for local servers (bytes)
-	const server_oversize_response = 760 &redef;
+	const server_oversize_response = 3584 &redef;
 }
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
@@ -58,7 +58,7 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 	{
 	local o_resp = oversize_response;
 	local local_server = F;
-	if (c$id$orig_h in local_dns_servers)
+	if (c$id$orig_h in local_dns_servers || c$id$orig_h in recursive_resolvers)
 		{
 		o_resp = server_oversize_response;
 		local_server = T;
