@@ -1,6 +1,6 @@
 Changes
 =======
-Changes in version 1.0.1:
+Changes in version 1.0.2:
 _________________________
 
 * Added ability to track recursive resolvers seperately in an-dns-domain.bro.
