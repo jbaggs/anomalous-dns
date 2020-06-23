@@ -1,7 +1,9 @@
 [package]
 description =  A module for tracking and correlating abnormal DNS behavior. Detection of tunneling and C&C through connection duration and volume, request and answer size, DNS request type, and unique queries per domain.
 tags = bro scripting, dns, domain, notices
-version = 1.0.2
-depends = https://github.com/sethhall/domain-tld *
+version = 1.2.0
+depends = 
+    zeek >=3.0.0
+    https://github.com/sethhall/domain-tld *
 
 

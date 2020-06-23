@@ -1,6 +1,6 @@
 Anomalous-DNS
 =============
-A set of zeek (bro) scripts providing a module for tracking and correlating abnormal DNS behavior. Detection of tunneling and C&C through connection duration and volume, request and answer size, DNS request type, and unique queries per domain.
+A set of zeek scripts providing a module for tracking and correlating abnormal DNS behavior. Detection of tunneling and C&C through connection duration and volume, request and answer size, DNS request type, and unique queries per domain.
 
 Requirements
 ____________
@@ -11,7 +11,7 @@ domain-tld: https://github.com/sethhall/domain-tld
 Installation
 ____________
 
-``bro-pkg install jbaggs/anomalous-dns``
+``zkg install jbaggs/anomalous-dns``
 
 Documentation
 _____________

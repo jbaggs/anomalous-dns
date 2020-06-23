@@ -1,5 +1,10 @@
 Changes
 =======
+Changes in version 1.2.0:
+_________________________
+* The "tunneling" event has been removed, as it was seldom used and perhaps overly ambitious.
+* Package converted to zeek / zkg.
+
 Changes in version 1.0.2:
 _________________________
 
