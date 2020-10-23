@@ -34,7 +34,11 @@ const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 # Additional whitelisting for recursive resolvers.
 # Whitelist from recursive-whitelist.zeek replaces the pattern below 
 # when set to load in __load__.zeek
-const recursive_whitelist: pattern = /PATTERN_LOADED_FROM_FILE/ &redef;
+#
+# The default pattern below is for exempting queries of the form: "_.foo.baz",
+# for nameservers that are implementing QNAME Minimisation.
+# See: https://tools.ietf.org/html/rfc7816.html (3. Possible Issues)
+const recursive_whitelist: pattern = /^(_\..*)$/ &redef;
 
 # Data structures for tracking unique queries to domains
 global domain_query: table[string] of set[string] &read_expire=query_period+1min;
