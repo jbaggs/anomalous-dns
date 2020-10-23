@@ -27,13 +27,13 @@ export {
 	const query_period = 60min;
 }
 
-# Whitelist from domain-whitelist.bro replaces the pattern below 
-# when set to load in __load__.bro
+# Whitelist from domain-whitelist.zeek replaces the pattern below 
+# when set to load in __load__.zeek
 const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 
 # Additional whitelisting for recursive resolvers.
-# Whitelist from recursive-whitelist.bro replaces the pattern below 
-# when set to load in __load__.bro
+# Whitelist from recursive-whitelist.zeek replaces the pattern below 
+# when set to load in __load__.zeek
 const recursive_whitelist: pattern = /PATTERN_LOADED_FROM_FILE/ &redef;
 
 # Data structures for tracking unique queries to domains
