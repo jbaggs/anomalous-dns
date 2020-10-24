@@ -37,7 +37,7 @@ const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 #
 # The default pattern below is for exempting queries of the form: "_.foo.baz",
 # for nameservers that are implementing QNAME Minimisation.
-# See: https://tools.ietf.org/html/rfc7816.html (3. Possible Issues)
+# See: https://tools.ietf.org/html/rfc7816.html#section-3
 const recursive_whitelist: pattern = /^(_\..*)$/ &redef;
 
 # Data structures for tracking unique queries to domains
