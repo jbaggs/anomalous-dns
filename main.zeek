@@ -31,6 +31,12 @@ export {
 	## Event generated when a query type not in the whitelist is detected
 	global unusual_qtype: event(c: connection, query: string, qtype: count);
 
+	## Event generated when a "fast-flux" domain is detected
+	global fast_flux_detected: event(c: connection, query: string, score: double);
+
+	## Event generated when a query is made to a previously detected fast-flux domain
+	global fast_flux_query: event(c:connection, query: string);
+
 	## Generate connection notices
 	global conn_notice: bool = T &redef; 
 
@@ -43,10 +49,13 @@ export {
 	## Generate query type notices
 	global qtype_notice: bool = T &redef;
 
+	## Generate fast-flux notices
+	global ff_notice: bool = T &redef;
+
 	## Local servers that receive exceptions for DNSSEC in Oversized_Answer and Domain_Query_Limit,
 	## and query type 10 (if Trust Anchor Telemetry).
 	const local_dns_servers: set[addr] &redef;
-
+	
 	## Recursive resolvers receive the same treatment as local dns servers, but are tracked seperately
 	## in an-dns-domain.zeek. This allows for a higher query limit than forwarding resolvers, 
 	## and / or additional whitelisting.

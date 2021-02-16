@@ -1,7 +1,21 @@
 Changes
 =======
+Changes in version 1.2.3:
+_________________________
+
+* Added an-dns-fast_flux for the detection of fast flux DNS requests. 
+
+This script requires the MaxMind GeoLite2-ASN database, and is disabled by default. 
+Follow the instructions in the module's comments to configure and enable. 
+
+Changes in version 1.2.2:
+_________________________
+
+* Set default recursive-whitelist pattern to match queries related to QNAME Minimisation. (RFC 7816)
+
 Changes in version 1.2.0:
 _________________________
+
 * The "tunneling" event has been removed, as it was seldom used and perhaps overly ambitious.
 * Package converted to zeek / zkg.
 

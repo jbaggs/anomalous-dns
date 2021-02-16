@@ -6,3 +6,5 @@
 #@load ./recursive-whitelist
 @load ./an-dns-oversized
 @load ./an-dns-query_type
+#@load ./an-dns-fast_flux
+#@load ./fast_flux-whitelist
