@@ -11,8 +11,11 @@ Follow the instructions in the module's comments to configure and enable.
 Changes in version 1.2.2:
 _________________________
 
-* Set default recursive-whitelist pattern to match queries related to QNAME Minimisation. (`RFC 7816
-<https://www.ietf.org/rfc/rfc7816.txt>`_) 
+* Set default recursive-whitelist pattern to match queries related to QNAME Minimisation. 
+
+`(RFC 7816)
+<https://www.ietf.org/rfc/rfc7816.txt>`_
+
 Changes in version 1.2.0:
 _________________________
 
