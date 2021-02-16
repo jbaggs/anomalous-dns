@@ -13,8 +13,8 @@ _________________________
 
 * Set default recursive-whitelist pattern to match queries related to QNAME Minimisation. 
 
-`(RFC 7816)
-<https://www.ietf.org/rfc/rfc7816.txt>`_
+`(SEE: RFC 7816 section 3)
+<https://tools.ietf.org/html/rfc7816.html#section-3>`_
 
 Changes in version 1.2.0:
 _________________________
