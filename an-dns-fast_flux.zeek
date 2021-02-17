@@ -28,7 +28,7 @@ export {
         ## TTL value over which we ignore DNS responses
         const TTL_threshold = 30min &redef;
 
-	##
+	## Tracked fluxer candidates.
 	global detect_fast_fluxers: table[string] of fluxer_candidate &write_expire=TTL_threshold + 1min;
 
 	## The set of detected fluxers. 
