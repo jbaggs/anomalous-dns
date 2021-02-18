@@ -17,15 +17,35 @@ export {
 	redef enum Notice::Type += {
 		Domain_Query_Limit,
 	};
+
 	## Threshold for unique queries to a domain per query period
 	const domain_query_limit  =  8 &redef;
-
 	## Domain query threshold for recursive resolvers
 	const recursive_domain_query_limit  =  12 &redef;
 
 	## Time until queries expire from tracking.
 	const query_period = 60min;
+
+	## Data structures for tracking unique queries to domains
+        ## In cluster operation, these tables are  distributed uniformly across
+        ## proxy nodes.
+	global domain_query: table[string] of set[string] &read_expire=query_period+1min;
+	global domain_query_hosts: table[string] of set[addr] &read_expire=query_period+1min;
+
+	global recursive_domain_query: table[string] of set[string] &read_expire=query_period+1min;
+	global recursive_domain_query_hosts: table[string] of set[addr] &read_expire=query_period+1min;
+
 }
+
+# Record type containing the fields used for query tracking 
+type QueryInfo: record {
+	# The query to track
+	query: string;
+	# ETLD of the query
+	domain: string &optional;
+	# The host that made the query
+	host:    addr;
+};
 
 # Whitelist from domain-whitelist.zeek replaces the pattern below 
 # when set to load in __load__.zeek
@@ -39,13 +59,6 @@ const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 # for nameservers that are implementing QNAME Minimisation.
 # See: https://tools.ietf.org/html/rfc7816.html#section-3
 const recursive_whitelist: pattern = /^(_\..*)$/ &redef;
-
-# Data structures for tracking unique queries to domains
-global domain_query: table[string] of set[string] &read_expire=query_period+1min;
-global domain_query_hosts: table[string] of set[addr] &read_expire=query_period+1min;
-
-global recursive_domain_query: table[string] of set[string] &read_expire=query_period+1min;
-global recursive_domain_query_hosts: table[string] of set[addr] &read_expire=query_period+1min;
 
 function notify(c: connection, domain: string, queries: count, hosts: set[addr])
 	{
@@ -62,49 +75,102 @@ function notify(c: connection, domain: string, queries: count, hosts: set[addr])
 	]);
 	}
 
+event add_recursive_domain_query(info: QueryInfo)
+	{
+	if (info$domain ! in recursive_domain_query)
+		{
+		recursive_domain_query[info$domain]=set(info$query) &write_expire=query_period;
+		recursive_domain_query_hosts[info$domain]=set(info$host) &write_expire=query_period;
+		}
+
+	else    
+		{
+		add recursive_domain_query[info$domain][info$query];
+		add recursive_domain_query_hosts[info$domain][info$host];
+		}
+	}
+
+event add_domain_query(info: QueryInfo)
+	{
+	if (info$domain ! in domain_query)
+		{
+		domain_query[info$domain]=set(info$query) &write_expire=query_period;
+		domain_query_hosts[info$domain]=set(info$host) &write_expire=query_period;
+		}
+
+	else
+		{
+		add domain_query[info$domain][info$query];
+		add domain_query_hosts[info$domain][info$host];
+		}
+	}
+
 function track_query(c: connection, query: string)
 	{
-	local domain  =  DomainTLD::effective_domain(query);
-	if (c$id$orig_h in recursive_resolvers )
+	local info = QueryInfo($query = query, $host = c$id$orig_h);
+	local hosts: set[addr] &redef;
+	local queries: set[string] &redef;
+	info$domain  =  DomainTLD::effective_domain(query);
+	if (info$host in recursive_resolvers )
 		{
-		if (domain ! in recursive_domain_query)
+		if ( info$domain in recursive_domain_query )
 			{
-			recursive_domain_query[domain]=set(query) &write_expire=query_period;
-			recursive_domain_query_hosts[domain]=set(c$id$orig_h) &write_expire=query_period;
+			queries = recursive_domain_query[info$domain];
+			hosts = recursive_domain_query_hosts[info$domain];
+			add hosts[info$host];
+			add queries[query];
+			if (|queries| > recursive_domain_query_limit)
+				{
+				event domain_query_exceeded(c, info$domain);
+				if (dquery_notice)
+					notify(c, info$domain, |queries|, hosts);
+				}
 			}
-
-		else
-			{
-			add recursive_domain_query[domain][query];
-			add recursive_domain_query_hosts[domain][c$id$orig_h];
-			}
-		if (|recursive_domain_query[domain]| > recursive_domain_query_limit)
-			{
-			event AnomalousDNS::domain_query_exceeded(c,domain);
-			if (dquery_notice)
-				notify(c, domain, |recursive_domain_query[domain]|, recursive_domain_query_hosts[domain]);
-			}
+		Cluster::publish_hrw(Cluster::proxy_pool, info$query, add_recursive_domain_query, info);
+		event add_recursive_domain_query(info);
 		}
 	else
 		{
-		if (domain ! in domain_query)
+		if ( info$domain in domain_query )
 			{
-			domain_query[domain]=set(query) &write_expire=query_period;
-			domain_query_hosts[domain]=set(c$id$orig_h) &write_expire=query_period;
+			queries = domain_query[info$domain];
+			hosts = domain_query_hosts[info$domain];
+			add hosts[info$host];
+			add queries[query];
+			if (|queries| > domain_query_limit)
+				{
+				event domain_query_exceeded(c, info$domain);
+				if (dquery_notice)
+					notify(c, info$domain, |queries|, hosts);
+				}
 			}
-
-		else
-			{
-			add domain_query[domain][query];
-			add domain_query_hosts[domain][c$id$orig_h];
-			}
-		if (|domain_query[domain]| > domain_query_limit)
-			{
-			event AnomalousDNS::domain_query_exceeded(c,domain);
-			if (dquery_notice)
-				notify(c, domain, |domain_query[domain]|, domain_query_hosts[domain]);
-			}
+		Cluster::publish_hrw(Cluster::proxy_pool, info$query, add_domain_query, info);
+		event add_domain_query(info);
 		}
+	}
+
+event Cluster::node_up(name: string, id: string)
+	{
+	if ( Cluster::local_node_type() != Cluster::WORKER )
+		return;
+
+	# Drop local suppression cache on workers to force HRW key repartitioning.
+	AnomalousDNS::domain_query = table();
+	AnomalousDNS::domain_query_hosts = table();
+	AnomalousDNS::recursive_domain_query = table();
+	AnomalousDNS::recursive_domain_query_hosts = table();
+        }
+
+event Cluster::node_down(name: string, id: string)
+	{
+	if ( Cluster::local_node_type() != Cluster::WORKER )
+		return;
+
+        # Drop local suppression cache on workers to force HRW key repartitioning.
+	AnomalousDNS::domain_query = table();
+	AnomalousDNS::domain_query_hosts = table();
+	AnomalousDNS::recursive_domain_query = table();
+	AnomalousDNS::recursive_domain_query_hosts = table();
 	}
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)

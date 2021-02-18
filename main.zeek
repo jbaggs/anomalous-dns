@@ -7,6 +7,9 @@
 ##!
 ##! Author Jeremy Baggs
 
+@load base/frameworks/cluster
+@load base/frameworks/notice
+
 module AnomalousDNS;
 
 export {
