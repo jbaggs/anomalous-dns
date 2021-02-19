@@ -73,14 +73,14 @@ function check_dns_fluxiness(c: connection, ans: dns_answer, fluxer: fluxer_cand
 	# +0.0 is to "cast" values to doubles
 	local ASN_disparity = (|fluxer$ASNs|+0.0) / (|fluxer$A_hosts|+0.0);
 	local score = ASN_disparity * ((flux_host_count_weight * |fluxer$A_hosts|) + (flux_ASN_count_weight * |fluxer$ASNs|));
-	if (score > flux_threshold)
+	if ( score > flux_threshold )
 		{
 		event AnomalousDNS::fast_flux_detected(c, ans$query, score);
 		Cluster::publish_hrw(Cluster::proxy_pool, ans$query, track_fluxer, ans$query);
 		event track_fluxer(ans$query);
 		# Candidate promoted to confirmed fluxer
 		tracking = F;
-		if (ff_notice)
+		if ( ff_notice )
 			{
 			NOTICE([$note=Fast_Flux_Detected,
 				$msg=fmt("Flux score for %s is %f (%d hosts in %d distinct ASNs %f asns/ips)",
@@ -89,9 +89,11 @@ function check_dns_fluxiness(c: connection, ans: dns_answer, fluxer: fluxer_cand
 				$conn=c, $suppress_for=30min, $identifier=cat(ans$query,c$id$orig_h)]);
 			}
 		}
-	else if (ASN_disparity_floor_enable == T && ASN_disparity < ASN_disparity_floor)
+
+	else if ( ASN_disparity_floor_enable == T && ASN_disparity < ASN_disparity_floor )
 		# Candidate is not looking promising
 		tracking = F;
+
 	return tracking;
 	}
 
@@ -127,16 +129,16 @@ event remove_ff_candidate(query: string)
 
 event dns_A_reply(c: connection, msg: dns_msg, ans: dns_answer, a: addr)
 	{
-	if (ans$TTL > TTL_threshold)
+	if ( ans$TTL > TTL_threshold )
 		return;
 
 	# Don't keep any extra state about false positives
-	if (ff_whitelist in ans$query)
+	if ( ff_whitelist in ans$query )
 		return;
 
 	local candidate: fluxer_candidate; 
 	local check_flux = F;
-	if (ans$query in detect_fast_fluxers)
+	if ( ans$query in detect_fast_fluxers )
 		{
 		candidate = detect_fast_fluxers[ans$query];
 		check_flux = T;
@@ -145,10 +147,10 @@ event dns_A_reply(c: connection, msg: dns_msg, ans: dns_answer, a: addr)
 	add candidate$A_hosts[a];
 	local asn = lookup_asn(a);
 	add candidate$ASNs[asn];
-	if (check_flux)
+	if ( check_flux )
 		{
 		local tracking = check_dns_fluxiness(c, ans, candidate);
-		if (tracking)
+		if ( tracking )
 			{
 			Cluster::publish_hrw(Cluster::proxy_pool, ans$query, track_ff_candidate, query_info($query = ans$query, $candidate = candidate));
 			event track_ff_candidate(query_info($query = ans$query, $candidate = candidate));
@@ -173,7 +175,7 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 	if (query in fast_fluxers)
 		{
 		event AnomalousDNS::fast_flux_query(c, query);
-			if (ff_notice)
+			if ( ff_notice )
 			{
 			NOTICE([$note=Fast_Flux_Query,
 				$msg=fmt("Query for previously detected fast flux DNS record: %s from:  %s", query,cat(c$id$orig_h)),

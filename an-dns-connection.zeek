@@ -21,10 +21,10 @@ export {
 
 event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 	{
-	if (c$duration > conn_duration_limit)
+	if ( c$duration > conn_duration_limit )
 		{
 		event AnomalousDNS::conn_duration_exceeded(c);
-		if(conn_notice)
+		if( conn_notice )
 			{
 			NOTICE([$note=Conn_Duration,
 				$conn=c,
@@ -35,10 +35,10 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 			}
 		}
 
-        if (c$orig?$num_pkts && c$orig$num_pkts > conn_pkts_limit)
+        if ( c$orig?$num_pkts && c$orig$num_pkts > conn_pkts_limit )
                 {
                 event AnomalousDNS::conn_packets_exceeded(c);
-		if (conn_notice)
+		if ( conn_notice )
 			{
 			NOTICE([$note=Conn_Packets,
 				$conn=c,

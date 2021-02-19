@@ -20,6 +20,7 @@ export {
 
 	## Threshold for unique queries to a domain per query period
 	const domain_query_limit  =  8 &redef;
+
 	## Domain query threshold for recursive resolvers
 	const recursive_domain_query_limit  =  12 &redef;
 
@@ -27,8 +28,8 @@ export {
 	const query_period = 60min;
 
 	## Data structures for tracking unique queries to domains
-        ## In cluster operation, these tables are  distributed uniformly across
-        ## proxy nodes.
+	## In cluster operation, these tables are  distributed uniformly across
+	## proxy nodes.
 	global domain_query: table[string] of set[string] &read_expire=query_period+1min;
 	global domain_query_hosts: table[string] of set[addr] &read_expire=query_period+1min;
 
@@ -55,8 +56,8 @@ const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 # Whitelist from recursive-whitelist.zeek replaces the pattern below 
 # when set to load in __load__.zeek
 #
-# The default pattern below is for exempting queries of the form: "_.foo.baz",
-# for nameservers that are implementing QNAME Minimisation.
+# The default pattern below is for exempting queries of the form: "_.foo.bar",
+# for nameservers that are implementing QNAME minimisation.
 # See: https://tools.ietf.org/html/rfc7816.html#section-3
 const recursive_whitelist: pattern = /^(_\..*)$/ &redef;
 
@@ -77,7 +78,7 @@ function notify(c: connection, domain: string, queries: count, hosts: set[addr])
 
 event add_recursive_domain_query(info: QueryInfo)
 	{
-	if (info$domain ! in recursive_domain_query)
+	if ( info$domain ! in recursive_domain_query )
 		{
 		recursive_domain_query[info$domain]=set(info$query) &write_expire=query_period;
 		recursive_domain_query_hosts[info$domain]=set(info$host) &write_expire=query_period;
@@ -92,7 +93,7 @@ event add_recursive_domain_query(info: QueryInfo)
 
 event add_domain_query(info: QueryInfo)
 	{
-	if (info$domain ! in domain_query)
+	if ( info$domain ! in domain_query )
 		{
 		domain_query[info$domain]=set(info$query) &write_expire=query_period;
 		domain_query_hosts[info$domain]=set(info$host) &write_expire=query_period;
@@ -111,7 +112,7 @@ function track_query(c: connection, query: string)
 	local hosts: set[addr] &redef;
 	local queries: set[string] &redef;
 	info$domain  =  DomainTLD::effective_domain(query);
-	if (info$host in recursive_resolvers )
+	if ( info$host in recursive_resolvers )
 		{
 		if ( info$domain in recursive_domain_query )
 			{
@@ -119,16 +120,17 @@ function track_query(c: connection, query: string)
 			hosts = recursive_domain_query_hosts[info$domain];
 			add hosts[info$host];
 			add queries[query];
-			if (|queries| > recursive_domain_query_limit)
+			if ( |queries| > recursive_domain_query_limit )
 				{
 				event domain_query_exceeded(c, info$domain);
-				if (dquery_notice)
+				if ( dquery_notice )
 					notify(c, info$domain, |queries|, hosts);
 				}
 			}
 		Cluster::publish_hrw(Cluster::proxy_pool, info$query, add_recursive_domain_query, info);
 		event add_recursive_domain_query(info);
 		}
+
 	else
 		{
 		if ( info$domain in domain_query )
@@ -137,10 +139,10 @@ function track_query(c: connection, query: string)
 			hosts = domain_query_hosts[info$domain];
 			add hosts[info$host];
 			add queries[query];
-			if (|queries| > domain_query_limit)
+			if ( |queries| > domain_query_limit )
 				{
 				event domain_query_exceeded(c, info$domain);
-				if (dquery_notice)
+				if ( dquery_notice )
 					notify(c, info$domain, |queries|, hosts);
 				}
 			}
@@ -175,16 +177,18 @@ event Cluster::node_down(name: string, id: string)
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
 	{
-	if (c$id$orig_h in recursive_resolvers )
+	if ( c$id$orig_h in recursive_resolvers )
 		{
-		if ( qtype ! in server_ignore_qtypes && recursive_whitelist ! in query && domain_whitelist ! in query)
+		if ( qtype ! in server_ignore_qtypes && recursive_whitelist ! in query && domain_whitelist ! in query )
 			track_query(c, query);
 		}
-	else if (c$id$orig_h in local_dns_servers)
+
+	else if ( c$id$orig_h in local_dns_servers )
 		{
-		if ( qtype ! in server_ignore_qtypes  && domain_whitelist ! in query)
+		if ( qtype ! in server_ignore_qtypes  && domain_whitelist ! in query )
 			track_query(c, query);
 		}
-	else if (c$id$orig_h ! in domain_untracked && domain_whitelist ! in query)
+
+	else if ( c$id$orig_h ! in domain_untracked && domain_whitelist ! in query )
 		track_query(c, query);
 	}
