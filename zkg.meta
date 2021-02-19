@@ -1,9 +1,0 @@
-[package]
-description =  A module for tracking and correlating abnormal DNS behavior. Detection of tunneling and C&C through connection duration and volume, request and answer size, DNS request type, and unique queries per domain. Statistical classification of fast flux networks based on A records and ASNs. 
-tags = zeek scripting, dns, domain, notices
-version = 1.2.4
-depends = 
-    zeek >=3.0.0
-    https://github.com/sethhall/domain-tld *
-
-
