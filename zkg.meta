@@ -4,6 +4,6 @@ tags = zeek scripting, dns, domain, notices
 script_dir = scripts
 depends = 
     zeek >=3.0.0
-    https://github.com/sethhall/domain-tld >= 1.2.2
+    https://github.com/sethhall/domain-tld >=1.2.2
 
 config_files = domain-whitelist.zeek, fast_flux-whitelist.zeek, recursive-whitelist.zeek, scripts/domain-whitelist.zeek, scripts/fast_flux-whitelist.zeek, scripts/recursive-whitelist.zeek
