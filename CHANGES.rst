@@ -1,5 +1,13 @@
 Changes
 =======
+Changes in version 2.0.0:
+-------------------------
+
+* Added cluster support. 
+
+In cluster operation, tables for tracking anomalous DNS queries, 
+and fast-flux candidates, will be spread across proxy nodes. 
+
 Changes in version 1.2.3:
 _________________________
 

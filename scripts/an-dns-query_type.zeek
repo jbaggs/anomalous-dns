@@ -26,22 +26,25 @@ export {
 function trust_anchor_telemetry(c: connection, query: string, qtype: count): bool
 	# https://kb.isc.org/article/AA-01528/0/BIND-Trust-Anchor-Telemetry-in-BIND-9.9.10-9.10.5-and-9.11.0.html
 	{
-	if (qtype != 10)
+	if ( qtype != 10 )
 		return F;
-	else if (c$id$orig_h ! in local_dns_servers && c$id$orig_h ! in recursive_resolvers)
+
+	else if ( c$id$orig_h ! in local_dns_servers && c$id$orig_h ! in recursive_resolvers )
 		return F;
-	else if (/^_ta(-[0-9a-f]{4})+$/ ! in query)
+
+	else if ( /^_ta(-[0-9a-f]{4})+$/ ! in query )
 		return F;
+
 	else
 		return T;
 	}
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
 	{
-	if (qtype in query_type_blacklist && ! trust_anchor_telemetry(c, query, qtype))
+	if (qtype in query_type_blacklist && ! trust_anchor_telemetry(c, query, qtype) )
 		{
 		event AnomalousDNS::blacklisted_qtype(c, query, qtype);
-		if (qtype_notice)
+		if ( qtype_notice )
 			{
 			NOTICE([$note=Blacklisted_Query_Type,
 				$conn=c,
@@ -53,10 +56,10 @@ event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qcla
 			}
 		}
 
-	if (query_type_use_whitelist == T  && qtype !in query_type_whitelist)
+	if ( query_type_use_whitelist == T  && qtype !in query_type_whitelist )
 		{
 		event AnomalousDNS::unusual_qtype(c, query, qtype);
-		if (qtype_notice)
+		if ( qtype_notice )
 			{
 			NOTICE([$note=Unusual_Query_Type,
 				$conn=c,

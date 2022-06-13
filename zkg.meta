@@ -1,9 +1,9 @@
 [package]
 description =  A module for tracking and correlating abnormal DNS behavior. Detection of tunneling and C&C through connection duration and volume, request and answer size, DNS request type, and unique queries per domain. Statistical classification of fast flux networks based on A records and ASNs. 
 tags = zeek scripting, dns, domain, notices
-version = 1.2.4
+script_dir = scripts
 depends = 
     zeek >=3.0.0
-    https://github.com/sethhall/domain-tld *
+    https://github.com/sethhall/domain-tld >=1.2.2
 
-
+config_files = domain-whitelist.zeek, fast_flux-whitelist.zeek, recursive-whitelist.zeek, scripts/domain-whitelist.zeek, scripts/fast_flux-whitelist.zeek, scripts/recursive-whitelist.zeek

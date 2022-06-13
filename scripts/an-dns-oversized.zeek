@@ -36,12 +36,12 @@ export {
 
 event dns_request(c: connection, msg: dns_msg, query: string, qtype: count, qclass: count)
 	{
-	if (|query| > oversize_query && oversize_ignore_names ! in query 
-		&& qtype ! in oversize_ignore_qtypes && c$id$orig_p ! in oversize_ignore_ports)
+	if ( |query| > oversize_query && oversize_ignore_names ! in query 
+		&& qtype ! in oversize_ignore_qtypes && c$id$orig_p ! in oversize_ignore_ports )
 		{
 		local domain  =  DomainTLD::effective_domain(query);
 		event AnomalousDNS::oversized_query(c,domain,|query|);
-		if (os_notice)
+		if ( os_notice )
 			{
 			NOTICE([$note=Oversized_Query,
 				$conn=c,
@@ -58,16 +58,17 @@ event dns_message(c: connection, is_orig: bool, msg: dns_msg, len: count)
 	{
 	local o_resp = oversize_response;
 	local local_server = F;
-	if (c$id$orig_h in local_dns_servers || c$id$orig_h in recursive_resolvers)
+	if ( c$id$orig_h in local_dns_servers || c$id$orig_h in recursive_resolvers )
 		{
 		o_resp = server_oversize_response;
 		local_server = T;
 		}
-	if (len > o_resp && ! (local_server && c$dns$qtype in server_ignore_qtypes)
+
+	if ( len > o_resp && ! (local_server && c$dns$qtype in server_ignore_qtypes )
 		&& c$id$orig_p ! in oversize_ignore_ports && c$id$resp_p ! in oversize_ignore_ports)
 		{
 		event AnomalousDNS::oversized_answer(c,len);
-		if (os_notice)
+		if ( os_notice )
 			{
 			NOTICE([$note=Oversized_Answer,
 				$conn=c,
