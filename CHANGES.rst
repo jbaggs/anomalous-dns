@@ -1,5 +1,9 @@
 Changes
 =======
+Changes in version 2.0.2:
+-------------------------
+* replace deprecated lookup_asn function (Removing in Zeek 6.1)
+
 Changes in version 2.0.0:
 -------------------------
 

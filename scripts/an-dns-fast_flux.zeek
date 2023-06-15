@@ -145,8 +145,9 @@ event dns_A_reply(c: connection, msg: dns_msg, ans: dns_answer, a: addr)
 		}
 
 	add candidate$A_hosts[a];
-	local asn = lookup_asn(a);
-	add candidate$ASNs[asn];
+	local autonomous_system = lookup_autonomous_system(a);
+	if ( autonomous_system?$number )
+		add candidate$ASNs[autonomous_system$number];
 	if ( check_flux )
 		{
 		local tracking = check_dns_fluxiness(c, ans, candidate);
