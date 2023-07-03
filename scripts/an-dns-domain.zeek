@@ -58,7 +58,7 @@ const domain_whitelist: pattern = /\.(in-addr\.arpa|ip6\.arpa)$/ &redef;
 #
 # The default pattern below is for exempting queries of the form: "_.foo.bar",
 # for nameservers that are implementing QNAME minimisation.
-# See: https://tools.ietf.org/html/rfc7816.html
+# See: https://tools.ietf.org/html/rfc7816.html#section-3
 const recursive_whitelist: pattern = /^(_\..*)$/ &redef;
 
 function notify(c: connection, domain: string, queries: count, hosts: set[addr])
