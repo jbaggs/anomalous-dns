@@ -5,7 +5,7 @@
 ##! Description: Detect Fast Flux DNS requests.
 ##!
 ##! This script requires the MaxMind GeoLite2-ASN database.
-##! Follow the instructions in: https://docs.zeek.org/en/current/frameworks/geoip.html
+##! Follow the instructions in: https://docs.zeek.org/en/lts/frameworks/geoip.html
 ##! replacing "GeoLite2-City" with "GeoLite2-ASN". 
 ##!
 ##! Uncomment "@load ./an-dns-fast_flux" and "@load ./fast_flux-whitelist"
